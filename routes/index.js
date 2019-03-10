@@ -1,6 +1,7 @@
 const express = require('express');
 const ticketGenerator = require('../utils/ticket-generator');
 const mail = require('../utils/mail');
+const {RegisteredTicketModel} = require('../models/registered-ticket');
 
 const router = express.Router();
 
@@ -19,16 +20,31 @@ router.post('/request-ticket', async (req, res, next) => {
   // Return with random data
   // res.send(ticketGenerator.getRndNewTicket());
 
+  const ticketNumber = ticketGenerator.getRndNewTicket();
   // send email to user
   const mailData = {
     recipients: email,
     subject: 'Your lucky draw ticket',
-    message: `Your lucky draw ticket number is  ${ticketGenerator.getRndNewTicket()}`,
+    message: `Your lucky draw ticket number is  ${ticketNumber}`,
   };
+
+  await RegisteredTicketModel.create({
+    username: name,
+    email,
+    ticketNumber,
+  });
 
   await mail.send(mailData);
 
   res.send({result: 'created'});
+});
+
+/* GET home page. */
+router.get('/registered-tickets', async (req, res, next) => {
+  
+  const registeredTickets = await RegisteredTicketModel.find({});
+
+  res.json(registeredTickets);
 });
 
 /* GET home page. */
