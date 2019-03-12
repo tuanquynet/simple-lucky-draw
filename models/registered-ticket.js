@@ -4,8 +4,7 @@ const { Schema } = mongoose;
 const { Types } = mongoose.Schema;
 
 const RegisteredTicketSchema = new Schema({
-	username: { type: Types.String },
-	email: { type: Types.String, required: true },
+	user: { type: Types.ObjectId, ref: 'User' },
 	ticketNumber: { type: Types.String, required: true },
 });
 

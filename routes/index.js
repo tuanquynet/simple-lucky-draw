@@ -2,6 +2,7 @@ const express = require('express');
 const ticketGenerator = require('../utils/ticket-generator');
 const mail = require('../utils/mail');
 const {RegisteredTicketModel} = require('../models/registered-ticket');
+const {UserModel} = require('../models/user');
 
 const router = express.Router();
 
@@ -28,9 +29,13 @@ router.post('/request-ticket', async (req, res, next) => {
     message: `Your lucky draw ticket number is  ${ticketNumber}`,
   };
 
-  await RegisteredTicketModel.create({
-    username: name,
+  const user = await UserModel.create({
+    name,
     email,
+  });
+
+  await RegisteredTicketModel.create({
+    user: user.id,
     ticketNumber,
   });
 
@@ -42,9 +47,9 @@ router.post('/request-ticket', async (req, res, next) => {
 /* GET home page. */
 router.get('/registered-tickets', async (req, res, next) => {
   
-  const registeredTickets = await RegisteredTicketModel.find({});
+  const registeredTickets = await RegisteredTicketModel.find({}).populate('user');
 
-  res.json(registeredTickets);
+  res.send(registeredTickets.toJSON());
 });
 
 /* GET home page. */
